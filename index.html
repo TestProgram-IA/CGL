@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Padronização de Leite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Palette Futurista / Sci-Fi Light */
+            --bg-body: #0b0f19;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0f19 70%);
+            --panel-bg: rgba(15, 23, 42, 0.75);
+            --panel-border: rgba(56, 189, 248, 0.2);
+            --header-bg: rgba(2, 6, 23, 0.8);
+            --header-text: #f8fafc;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.35);
+            --primary-hover: #0ea5e9;
+            --accent-cyan: #06b6d4;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --unit-bg: rgba(30, 41, 59, 0.8);
+            --unit-text: #38bdf8;
+            
+            /* Card de Resultado */
+            --result-bg: rgba(12, 74, 110, 0.25);
+            --result-border: rgba(56, 189, 248, 0.4);
+            --result-item-bg: rgba(15, 23, 42, 0.8);
+            --result-item-border: rgba(255, 255, 255, 0.08);
+            --result-text: #38bdf8;
+
+            /* Toggle Switch */
+            --toggle-bg: #1e293b;
+            --toggle-circle: #38bdf8;
+        }
+
+        [data-theme="light"] {
+            /* Theme Cyber Clean (Light Mode High-Tech) */
+            --bg-body: #e2e8f0;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #cbd5e1 100%);
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --panel-border: rgba(2, 132, 199, 0.3);
+            --header-bg: rgba(241, 245, 249, 0.9);
+            --header-text: #0f172a;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.25);
+            --primary-hover: #0369a1;
+            --accent-cyan: #0284c7;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #f8fafc;
+            --unit-bg: #e2e8f0;
+            --unit-text: #0369a1;
+            
+            /* Card de Resultado */
+            --result-bg: rgba(224, 242, 254, 0.7);
+            --result-border: #7dd3fc;
+            --result-item-bg: #ffffff;
+            --result-item-border: #e2e8f0;
+            --result-text: #0284c7;
+
+            /* Toggle Switch */
+            --toggle-bg: #cbd5e1;
+            --toggle-circle: #0284c7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Space Grotesk', -apple-system, sans-serif; 
+            background: var(--bg-body);
+            background-image: var(--bg-gradient);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container { 
+            background: var(--panel-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            width: 100%;
+            max-width: 480px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 20px var(--primary-glow);
+            border: 1px solid var(--panel-border);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .header-title h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-title h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .header-title p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+            letter-spacing: 0.02em;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .theme-toggle input {
+            display: none;
+        }
+
+        .toggle-slider {
+            width: 46px;
+            height: 24px;
+            background-color: var(--toggle-bg);
+            border-radius: 20px;
+            position: relative;
+            border: 1px solid var(--panel-border);
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 3px;
+            top: 3px;
+            background-color: var(--toggle-circle);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary-glow);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .theme-toggle input:checked + .toggle-slider::before {
+            transform: translateX(22px);
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        .campo {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.725rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: var(--input-bg);
+            transition: all 0.25s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .input-group input, .input-group select {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 12px 14px;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            background: transparent;
+            color: var(--text-main);
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .input-group select {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .input-group select option {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        [data-theme="light"] .input-group select option {
+            background-color: #ffffff;
+            color: #0f172a;
+        }
+
+        .input-unit {
+            padding: 12px 16px;
+            background-color: var(--unit-bg);
+            color: var(--unit-text);
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            border-left: 1px solid var(--panel-border);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+        }
+
+        .btn-principal { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: #ffffff; 
+            border: none; 
+            padding: 14px; 
+            width: 100%;
+            cursor: pointer; 
+            border-radius: 10px; 
+            font-size: 0.875rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transition: all 0.25s ease;
+        }
+
+        .btn-principal:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-principal:active {
+            transform: translateY(0);
+        }
+
+        .btn-pdf {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--panel-border);
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 14px;
+            display: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-pdf:hover { 
+            background-color: var(--unit-bg);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .resultado-container {
+            background-color: var(--result-bg); 
+            border: 1px solid var(--result-border);
+            padding: 18px; 
+            margin-top: 24px; 
+            border-radius: 12px; 
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .resultado-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .resultado-box {
+            background: var(--result-item-bg);
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--result-item-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .resultado-box.full-width {
+            grid-column: span 2;
+        }
+
+        .resultado-box label {
+            margin-bottom: 6px;
+            font-size: 0.65rem;
+        }
+
+        .resultado-val-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .resultado-val {
+            font-size: 1.25rem;
+            color: var(--result-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .resultado-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background-color: var(--unit-bg);
+            color: var(--unit-text);
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid var(--panel-border);
+        }
+
+        .erro {
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 12px;
+            margin-top: 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        [data-theme="light"] .erro {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .pdf-header {
+            display: none;
+            text-align: center;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .pdf-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        /* Regras de Impressão */
+        @media print {
+            @page { 
+                size: A4 portrait; 
+                margin: 1cm; 
+            }
+            html, body {
+                height: auto !important;
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .container { 
+                box-shadow: none !important; 
+                border: none !important; 
+                max-width: 100% !important; 
+                width: 100% !important;
+                padding: 0 !important; 
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                background: white !important;
+            }
+            .content {
+                padding: 10px 0 !important;
+            }
+            .header, .theme-toggle, .btn-principal, .btn-pdf { 
+                display: none !important; 
+            }
+            .pdf-header { 
+                display: block !important; 
+            }
+            .campo {
+                margin-bottom: 10px !important;
+                page-break-inside: avoid !important;
+            }
+            .input-group {
+                border: 1px solid #64748b !important;
+                background: white !important;
+            }
+            .input-group input, .input-group select {
+                color: black !important;
+            }
+            .input-unit {
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                border-left: 1px solid #64748b !important;
+            }
+            .resultado-container { 
+                display: block !important; 
+                background: #f8fafc !important; 
+                border: 1px solid #64748b !important; 
+                padding: 12px !important;
+                margin-top: 12px !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .resultado-box { 
+                border: 1px solid #cbd5e1 !important; 
+                background: white !important; 
+            }
+            .resultado-val { 
+                color: #0f172a !important; 
+            }
+            .resultado-tag {
+                background: #f1f5f9 !important;
+                color: #334155 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="pdf-header">
+            <h2>Relatório Técnico de Padronização de Leite</h2>
+        </div>
+
+        <div class="header">
+            <div class="header-title">
+                <h2>Padronização</h2>
+                <p>Ajuste e controle de teor de gordura</p>
+            </div>
+            <label class="theme-toggle" title="Alternar tema escuro/claro">
+                <input type="checkbox" id="themeSwitch" onchange="alternarTema(this.checked)">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="content">
+            <div class="campo">
+                <label for="metodo">Método de Padronização</label>
+                <div class="input-group">
+                    <select id="metodo" onchange="limparResultados()">
+                        <option value="retirar">Retirar Creme (Reduzir Gordura)</option>
+                        <option value="adicionar">Adicionar Creme (Aumentar Gordura)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="volume">Volume de Leite Inicial</label>
+                <div class="input-group">
+                    <input id="volume" type="number" value="1000" min="1">
+                    <span class="input-unit">L</span>
+                </div>
+            </div>
+            
+            <div class="campo">
+                <label for="gi">Gordura Inicial</label>
+                <div class="input-group">
+                    <input id="gi" type="number" value="3.8" step="0.1" min="0">
+                    <span class="input-unit">%</span>
+                </div>
+            </div>
+            
+            <div class="campo">
+                <label for="gf">Gordura Desejada</label>
+                <div class="input-group">
+                    <input id="gf" type="number" value="3.2" step="0.1" min="0">
+                    <span class="input-unit">%</span>
+                </div>
+            </div>
+            
+            <div class="campo" id="blocoCreme">
+                <label for="gc">Gordura do Creme</label>
+                <div class="input-group">
+                    <input id="gc" type="number" value="40" step="0.1" min="0">
+                    <span class="input-unit">%</span>
+                </div>
+            </div>
+            
+            <button class="btn-principal" onclick="calcular()">Calcular Processo</button>
+            
+            <div class="erro" id="erro"></div>
+            
+            <div class="resultado-container" id="resultado">
+                <div id="resultado-texto"></div>
+                <button class="btn-pdf" id="btnExportar" onclick="exportarParaPDF()">Salvar Resultado como PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function alternarTema(isLight) {
+            if (isLight) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        (function carregarTemaSalvo() {
+            const temaSalvo = localStorage.getItem('theme');
+            const prefereClaro = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+            
+            if (temaSalvo === 'light' || (!temaSalvo && prefereClaro)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.getElementById('themeSwitch').checked = true;
+            }
+        })();
+
+        function limparResultados() {
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('btnExportar').style.display = 'none';
+            document.getElementById('erro').style.display = 'none';
+        }
+
+        function calcular() {
+            const parseInput = (id) => parseFloat(document.getElementById(id).value.replace(',', '.'));
+
+            const V = parseInput('volume');
+            const Gi = parseInput('gi');
+            const Gf = parseInput('gf');
+            const Gc = parseInput('gc');
+            const metodo = document.getElementById('metodo').value;
+            
+            const divTexto = document.getElementById('resultado-texto');
+            const divResultado = document.getElementById('resultado');
+            const btnPdf = document.getElementById('btnExportar');
+            
+            limparResultados();
+
+            if (isNaN(V) || isNaN(Gi) || isNaN(Gf) || isNaN(Gc) || V <= 0 || Gi < 0 || Gf < 0 || Gc < 0) {
+                exibirErro("Por favor, insira valores válidos e maiores que zero.");
+                return;
+            }
+
+            if (Gc <= Gf) {
+                exibirErro("A gordura do creme deve ser maior que a gordura desejada.");
+                return;
+            }
+
+            let volumeAjuste = 0;
+            let volumeFinal = 0;
+
+            if (metodo === 'retirar') {
+                if (Gi <= Gf) {
+                    exibirErro("Para retirar creme, a gordura inicial deve ser MAIOR que a gordura desejada.");
+                    return;
+                }
+
+                volumeAjuste = V * (Gi - Gf) / (Gc - Gf);
+                volumeFinal = V - volumeAjuste;
+
+                divTexto.innerHTML = `
+                    <div class="resultado-card">
+                        <div class="resultado-box full-width">
+                            <label>Ação Recomendada</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val" style="font-size: 1rem;">RETIRAR CREME</span>
+                                <span class="resultado-tag">PROCESSO</span>
+                            </div>
+                        </div>
+                        <div class="resultado-box">
+                            <label>Creme a Retirar</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val">${volumeAjuste.toFixed(2)}</span>
+                                <span class="resultado-tag">L</span>
+                            </div>
+                        </div>
+                        <div class="resultado-box">
+                            <label>Volume Final</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val">${volumeFinal.toFixed(2)}</span>
+                                <span class="resultado-tag">L</span>
+                            </div>
+                        </div>
+                        <div class="resultado-box full-width">
+                            <label>Gordura Final Obtida</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val">${Gf.toFixed(1)}</span>
+                                <span class="resultado-tag">%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                if (Gi >= Gf) {
+                    exibirErro("Para adicionar creme, a gordura inicial deve ser MENOR que a gordura desejada.");
+                    return;
+                }
+
+                volumeAjuste = V * (Gf - Gi) / (Gc - Gf);
+                volumeFinal = V + volumeAjuste;
+
+                divTexto.innerHTML = `
+                    <div class="resultado-card">
+                        <div class="resultado-box full-width">
+                            <label>Ação Recomendada</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val" style="font-size: 1rem;">ADICIONAR CREME</span>
+                                <span class="resultado-tag">PROCESSO</span>
+                            </div>
+                        </div>
+                        <div class="resultado-box">
+                            <label>Creme a Adicionar</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val">${volumeAjuste.toFixed(2)}</span>
+                                <span class="resultado-tag">L</span>
+                            </div>
+                        </div>
+                        <div class="resultado-box">
+                            <label>Volume Final</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val">${volumeFinal.toFixed(2)}</span>
+                                <span class="resultado-tag">L</span>
+                            </div>
+                        </div>
+                        <div class="resultado-box full-width">
+                            <label>Gordura Final Obtida</label>
+                            <div class="resultado-val-container">
+                                <span class="resultado-val">${Gf.toFixed(1)}</span>
+                                <span class="resultado-tag">%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            divResultado.style.display = 'block';
+            btnPdf.style.display = 'block';
+        }
+
+        function exibirErro(mensagem) {
+            const divErro = document.getElementById('erro');
+            divErro.innerText = mensagem;
+            divErro.style.display = 'block';
+        }
+
+        function exportarParaPDF() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
